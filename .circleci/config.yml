@@ -24,7 +24,7 @@ commands:
       - run:
           name: Extract LocalRepo name
           command: |
-            echo "m2-v1" > /tmp/m2-cache-key.txt
+            echo "m2-v1" > .circleci-m2-cache-key.txt
   extract_gradle_version:
     steps:
       - run:
@@ -38,7 +38,7 @@ commands:
           name: Extract Kotlin version
           command: |
             KOTLIN_VERSION=$(grep 'kotlin =' gradle/libs.versions.toml | cut -d'"' -f2)
-            echo "$KOTLIN_VERSION" > /tmp/kotlin-cache-key.txt
+            echo "$KOTLIN_VERSION" > .circleci-kotlin-cache-key.txt
   restore_gradle_cache:
     steps:
       - restore_cache:
@@ -49,13 +49,13 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - konan-v1-{{ checksum "/tmp/kotlin-cache-key.txt" }}
+            - konan-v1-{{ checksum ".circleci-kotlin-cache-key.txt" }}
             - konan-v1-
   restore_m2_cache:
     steps:
       - restore_cache:
           keys:
-            - m2-v1-{{ checksum "/tmp/m2-cache-key.txt" }}
+            - m2-v1-{{ checksum ".circleci-m2-cache-key.txt" }}
             - m2-v1-
   ensure_gradle_wrapper:
     steps:
