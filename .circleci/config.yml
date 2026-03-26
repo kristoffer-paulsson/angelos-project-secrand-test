@@ -95,18 +95,34 @@ commands:
       #       circleci tests glob "library/src/commonTest/kotlin/**/*Test.kt" "library/src/jvmTest/kotlin/**/*Test.kt" | tee /tmp/test-files.txt
       #       echo "Matched files:"
       #       cat /tmp/test-files.txt || true
+      # - run:
+      #     name: Debug CircleCI test glob on Windows
+      #     shell: bash.exe
+      #     command: |
+      #       echo "PWD:"
+      #       pwd
+
+      #       echo "Backslash glob:"
+      #       circleci tests glob "library\\src\\commonTest\\kotlin\\**\\*Test.kt" "library\\src\\jvmTest\\kotlin\\**\\*Test.kt"
+
+      #       echo "Forward slash glob:"
+      #       circleci tests glob "library/src/commonTest/kotlin/**/*Test.kt" "library/src/jvmTest/kotlin/**/*Test.kt"
       - run:
-          name: Debug CircleCI test glob on Windows
-          shell: bash.exe
+          name: Build classnames list (PowerShell)
+          shell: powershell.exe
           command: |
-            echo "PWD:"
-            pwd
+            circleci tests glob "library/src/commonTest/kotlin/**/*Test.kt" "library/src/jvmTest/kotlin/**/*Test.kt" `
+            | % {
+                $_ -replace '\\','/' `
+                  -replace '^library/src/commonTest/kotlin/','' `
+                  -replace '^library/src/jvmTest/kotlin/','' `
+                  -replace '/','.' `
+                  -replace '\.kt$',''
+              } `
+            | Tee-Object classnames.txt
 
-            echo "Backslash glob:"
-            circleci tests glob "library\\src\\commonTest\\kotlin\\**\\*Test.kt" "library\\src\\jvmTest\\kotlin\\**\\*Test.kt"
-
-            echo "Forward slash glob:"
-            circleci tests glob "library/src/commonTest/kotlin/**/*Test.kt" "library/src/jvmTest/kotlin/**/*Test.kt"
+            Write-Host "==== CLASSNAMES ===="
+            Get-Content classnames.txt
       - run:
           name: Split tests
           command: |
