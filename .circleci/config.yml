@@ -146,10 +146,10 @@ commands:
             echo "Classnames selected for this node:"
             tr -d '\r' < cat classnames.txt
 
-            tr -d '\r' < library/classnames.txt \
+            tr -d '\r' < classnames.txt \
             | xargs -n1 -I{} echo ./gradlew :library:jvmTest --tests "{}" --no-daemon --stacktrace --info
 
-            tr -d '\r' < library/classnames.txt \
+            tr -d '\r' < classnames.txt \
             | xargs -n1 -I{} ./gradlew :library:jvmTest --tests "{}" --no-daemon --stacktrace --info
 
 
@@ -206,20 +206,20 @@ commands:
   save_gradle_cache:
     steps:
       - save_cache:
-          key: gradle-v1-{{ checksum "/tmp/gradle-cache-key.txt" }}
+          key: gradle-v1-{{ checksum ".circleci-gradle-cache-key.txt" }}
           paths:
             - ~/.gradle/caches
             - ~/.gradle/wrapper
   save_konan_cache:
     steps:
       - save_cache:
-          key: konan-v1-{{ checksum "/tmp/kotlin-cache-key.txt" }}
+          key: konan-v1-{{ checksum ".circleci-kotlin-cache-key.txt" }}
           paths:
             - ~/.konan
   save_m2_cache:
     steps:
       - save_cache:
-          key: m2-v1-{{ checksum "/tmp/m2-cache-key.txt" }}
+          key: m2-v1-{{ checksum ".circleci-m2-cache-key.txt" }}
           paths:
             - ~/.m2
   prepare:
