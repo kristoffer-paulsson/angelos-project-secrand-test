@@ -112,14 +112,26 @@ commands:
           command: |
             # cd library
             # Get list of classnames of tests that should run on this node.
+            echo "STEP 1: raw glob"
+            circleci tests glob "library/src/commonTest/kotlin/**/*Test.kt" "library/src/jvmTest/kotlin/**/*Test.kt"
+
+            echo "STEP 2: normalize slashes"
+            circleci tests glob "library/src/commonTest/kotlin/**/*Test.kt" "library/src/jvmTest/kotlin/**/*Test.kt" \
+            | sed 's@\\@/@g'
+
+            echo "STEP 3: strip source roots"
+            circleci tests glob "library/src/commonTest/kotlin/**/*Test.kt" "library/src/jvmTest/kotlin/**/*Test.kt" \
+            | sed 's@\\@/@g' \
+            | sed 's@^library/src/commonTest/kotlin/@@' \
+            | sed 's@^library/src/jvmTest/kotlin/@@'
+
+            echo "STEP 4: convert to classnames"
             circleci tests glob "library/src/commonTest/kotlin/**/*Test.kt" "library/src/jvmTest/kotlin/**/*Test.kt" \
             | sed 's@\\@/@g' \
             | sed 's@^library/src/commonTest/kotlin/@@' \
             | sed 's@^library/src/jvmTest/kotlin/@@' \
             | sed 's@/@.@g' \
-            | sed 's@\.kt$@@' \
-            | tee classnames.txt \
-            cat classnames.txt
+            | sed 's@\.kt$@@'
             # | circleci tests run \
             #     --command="xargs -n1 echo" \
             #     --verbose \
